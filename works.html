@@ -7,11 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Comfortaa:wght@400;700&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #DCEDC1; 
+            --bg-color: #DCEDC1;
             --accent-green: #a4d07d;
             --dark-green: #1b4332;
             --white: #ffffff;
             --footer-bg: #0d1f14;
+            --card-shadow: 0 8px 32px rgba(27,67,50,0.08), 0 2px 8px rgba(27,67,50,0.04);
+            --card-shadow-hover: 0 20px 60px rgba(27,67,50,0.15), 0 6px 20px rgba(27,67,50,0.08);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,24 +25,24 @@
             overflow-x: hidden;
         }
 
-        /* --- BRANDED NAVIGATION --- */
+        /* ── NAV ── */
         nav {
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 15px 5%;
+            padding: 16px 5%;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 100;
-            background: rgba(220, 237, 193, 0.8);
-            backdrop-filter: blur(12px);
+            background: rgba(220, 237, 193, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(27,67,50,0.06);
+            transition: background 0.3s ease;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 35px;
-        }
+        .nav-links { display: flex; gap: 35px; }
 
         nav a {
             text-decoration: none;
@@ -49,17 +51,24 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             font-size: 0.75rem;
-            transition: all 0.3s ease;
-            opacity: 0.85;
+            position: relative;
+            opacity: 0.8;
+            transition: opacity 0.25s ease, transform 0.25s ease;
         }
 
-        nav a:hover {
-            color: var(--white);
-            opacity: 1;
-            transform: translateY(-1px);
+        nav a::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: -3px;
+            width: 0; height: 2px;
+            background: var(--accent-green);
+            border-radius: 2px;
+            transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
         }
 
-        /* HAMBURGER BUTTON FIX: Higher z-index to ensure it is always clickable */
+        nav a:hover { opacity: 1; transform: translateY(-1px); }
+        nav a:hover::after { width: 100%; }
+
         .hamburger {
             display: none;
             cursor: pointer;
@@ -67,15 +76,22 @@
             gap: 5px;
             position: absolute;
             right: 5%;
-            z-index: 200; 
-            padding: 10px; /* Larger hit area for thumbs */
+            z-index: 200;
+            padding: 12px;
+            /* Minimum 44px touch target */
+            min-width: 44px;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
         }
 
         .hamburger span {
             width: 24px;
             height: 2px;
             background-color: var(--dark-green);
-            transition: 0.4s;
+            border-radius: 2px;
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, background-color 0.3s ease;
+            display: block;
         }
 
         @media (max-width: 768px) {
@@ -87,81 +103,533 @@
                 right: -100%;
                 top: 0;
                 height: 100vh;
-                width: 80%;
+                width: min(80%, 320px);
                 background: var(--dark-green);
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                gap: 30px;
-                transition: 0.5s ease-in-out;
+                gap: 28px;
+                transition: right 0.45s cubic-bezier(0.4,0,0.2,1), visibility 0.45s;
                 z-index: 150;
-                /* Prevent interaction when hidden */
-                pointer-events: none; 
+                pointer-events: none;
                 visibility: hidden;
+                box-shadow: -20px 0 60px rgba(0,0,0,0);
+                transition: right 0.45s cubic-bezier(0.4,0,0.2,1),
+                            visibility 0.45s,
+                            box-shadow 0.45s;
             }
 
-            .nav-links.active { 
-                right: 0; 
-                pointer-events: auto; 
+            .nav-links.active {
+                right: 0;
+                pointer-events: auto;
                 visibility: visible;
-                box-shadow: -10px 0 30px rgba(0,0,0,0.3);
+                box-shadow: -20px 0 60px rgba(0,0,0,0.35);
             }
 
-            .nav-links a { color: white; font-size: 1.1rem; }
-            
+            .nav-links a {
+                color: white;
+                font-size: 1rem;
+                opacity: 0.7;
+                transform: translateX(20px);
+                transition: opacity 0.3s ease, transform 0.3s ease, color 0.2s;
+            }
+
+            .nav-links.active a {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            /* Staggered link entrance */
+            .nav-links a:nth-child(1) { transition-delay: 0.05s; }
+            .nav-links a:nth-child(2) { transition-delay: 0.10s; }
+            .nav-links a:nth-child(3) { transition-delay: 0.15s; }
+            .nav-links a:nth-child(4) { transition-delay: 0.20s; }
+
+            .nav-links a::after { background: var(--accent-green); }
+            .nav-links a:hover { color: var(--accent-green); opacity: 1; }
+
             .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); background-color: white; }
-            .hamburger.active span:nth-child(2) { opacity: 0; }
+            .hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
             .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); background-color: white; }
         }
 
-        /* --- REMAINING DESIGN (No Changes Made) --- */
-        .featured-wrapper { width: 100%; margin-top: 20px; padding: 20px 0; }
-        .featured-gallery { display: flex; gap: 40px; padding: 0 5%; overflow-x: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; align-items: center; }
+        /* ── SECTION LABEL ── */
+        .section-label {
+            font-family: 'Shrikhand', cursive;
+            font-size: 1.8rem;
+            padding-left: 5%;
+            margin: 100px 0 28px;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .section-label.visible { opacity: 1; transform: translateY(0); }
+
+        .section-label span {
+            background: var(--accent-green);
+            padding: 4px 20px;
+            border-radius: 50px;
+            color: var(--white);
+            display: inline-block;
+        }
+
+        /* ── FEATURED GALLERY ── */
+        .featured-wrapper {
+            width: 100%;
+            margin-top: 20px;
+            padding: 20px 0 30px;
+        }
+
+        .featured-gallery {
+            display: flex;
+            gap: 40px;
+            padding: 12px 5% 20px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            align-items: center;
+            cursor: grab;
+        }
+
+        .featured-gallery:active { cursor: grabbing; }
         .featured-gallery::-webkit-scrollbar { display: none; }
-        .gallery-item { flex: 0 0 auto; height: 65vh; border-radius: 15px; transition: transform 0.4s ease; cursor: pointer; }
-        .gallery-item img, .gallery-item video { height: 100%; width: auto; object-fit: contain; display: block; border-radius: 15px; }
-        .sticker-style { filter: drop-shadow(10px 10px 0px rgba(0,0,0,0.05)); transform: rotate(-2deg); }
-        .section-label { font-family: 'Shrikhand', cursive; font-size: 1.8rem; padding-left: 5%; margin: 100px 0 25px; }
-        .section-label span { background: var(--accent-green); padding: 4px 20px; border-radius: 50px; color: var(--white); display: inline-block; }
-        .arts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; padding: 0 5%; max-width: 1400px; margin: 0 auto; }
-        .art-card { background: var(--white); padding: 15px 15px 35px; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); opacity: 0; transform: translate(var(--x, 0), var(--y, 0)) rotate(var(--r, 0)); cursor: pointer; }
-        .art-card.visible { opacity: 1; transform: translate(0, 0) rotate(0deg); }
-        .art-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; }
-        .posters-flex { display: flex; align-items: center; justify-content: center; gap: 40px; padding: 0 5%; flex-wrap: wrap; }
-        .phone-mockup { width: 300px; height: 550px; background: #111; border: 10px solid #222; border-radius: 40px; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+
+        .gallery-item {
+            flex: 0 0 auto;
+            height: 65vh;
+            border-radius: 15px;
+            transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), filter 0.4s ease;
+            cursor: pointer;
+            will-change: transform;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.025) translateY(-4px);
+            filter: drop-shadow(0 16px 32px rgba(27,67,50,0.18));
+        }
+
+        .gallery-item:active { transform: scale(0.98); }
+
+        .gallery-item img, .gallery-item video {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+            display: block;
+            border-radius: 15px;
+            pointer-events: none;
+        }
+
+        .sticker-style {
+            filter: drop-shadow(10px 10px 0px rgba(0,0,0,0.06));
+            transform: rotate(-2deg);
+        }
+
+        .sticker-style:hover {
+            transform: rotate(0deg) scale(1.025) translateY(-4px);
+            filter: drop-shadow(0 16px 32px rgba(27,67,50,0.18));
+        }
+
+        /* ── ARTS GRID ── */
+        .arts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 28px;
+            padding: 0 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .art-card {
+            background: var(--white);
+            padding: 14px 14px 30px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            transition: box-shadow 0.5s cubic-bezier(0.165,0.84,0.44,1),
+                        transform 0.5s cubic-bezier(0.165,0.84,0.44,1),
+                        opacity 0.7s ease;
+            opacity: 0;
+            transform: translate(var(--x,0), var(--y,0)) rotate(var(--r,0));
+            cursor: pointer;
+            will-change: transform, opacity;
+        }
+
+        .art-card.visible {
+            opacity: 1;
+            transform: translate(0,0) rotate(0deg);
+        }
+
+        .art-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .art-card:active { transform: translateY(-2px) scale(0.99); }
+
+        .art-card img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 4px;
+            transition: transform 0.5s cubic-bezier(0.165,0.84,0.44,1);
+        }
+
+        .art-card:hover img { transform: scale(1.03); }
+
+        .art-card p {
+            font-family: 'Gaegu', cursive;
+            text-align: center;
+            margin-top: 12px;
+            font-size: 1.05rem;
+            color: var(--dark-green);
+            opacity: 0.85;
+        }
+
+        /* ── POSTERS ── */
+        .posters-flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            padding: 0 5%;
+            flex-wrap: wrap;
+        }
+
+        .phone-mockup {
+            width: 290px;
+            height: 540px;
+            background: #111;
+            border: 10px solid #222;
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.22), 0 8px 20px rgba(0,0,0,0.12);
+            flex-shrink: 0;
+        }
+
         .ig-display { width: 100%; height: 100%; background: #fff; display: flex; flex-direction: column; }
         .ig-img-box { width: 100%; aspect-ratio: 1/1; overflow: hidden; background: #eee; }
-        .ig-img-box img { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s ease; }
-        .posters-list { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; max-width: 500px; }
-        .poster-thumb { aspect-ratio: 1/1; cursor: pointer; border-radius: 10px; overflow: hidden; border: 3px solid transparent; transition: 0.3s; }
+
+        .ig-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .ig-img-box img.switching {
+            opacity: 0;
+            transform: scale(0.96);
+        }
+
+        .posters-list {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 12px;
+            max-width: 480px;
+        }
+
+        .poster-thumb {
+            aspect-ratio: 1/1;
+            cursor: pointer;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 3px solid transparent;
+            transition: border-color 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+        }
+
+        .poster-thumb:hover {
+            transform: scale(1.06);
+            box-shadow: 0 8px 20px rgba(27,67,50,0.15);
+        }
+
+        .poster-thumb:active { transform: scale(0.96); }
         .poster-thumb.active { border-color: var(--accent-green); }
-        .poster-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .website-flex { display: flex; align-items: center; justify-content: center; gap: 60px; padding: 0 5%; flex-wrap: wrap; }
+        .poster-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* ── WEBSITE SECTION ── */
+        .website-flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 60px;
+            padding: 0 5%;
+            flex-wrap: wrap;
+        }
+
         .web-project-item { display: flex; align-items: center; gap: 25px; }
-        .web-info { display: flex; flex-direction: column; gap: 10px; }
-        .web-tag { font-family: 'Gaegu', cursive; font-size: 1.2rem; color: var(--dark-green); text-transform: capitalize; }
-        .web-phone { width: 260px; height: 520px; background: #000; border: 12px solid #1a1a1a; border-radius: 35px; position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+
+        .web-info { display: flex; flex-direction: column; gap: 12px; }
+
+        .web-tag {
+            font-family: 'Gaegu', cursive;
+            font-size: 1.2rem;
+            color: var(--dark-green);
+            text-transform: capitalize;
+        }
+
+        .web-phone {
+            width: 250px;
+            height: 510px;
+            background: #000;
+            border: 12px solid #1a1a1a;
+            border-radius: 35px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.18), 0 6px 16px rgba(0,0,0,0.1);
+            transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.5s ease;
+            flex-shrink: 0;
+        }
+
+        .web-phone:hover {
+            transform: translateY(-8px) scale(1.015);
+            box-shadow: 0 32px 70px rgba(0,0,0,0.25), 0 10px 24px rgba(0,0,0,0.12);
+        }
+
         .web-phone video { width: 100%; height: 100%; object-fit: cover; }
-        .web-link-btn { background: var(--accent-green); color: var(--white); text-decoration: none; padding: 12px 25px; border-radius: 50px; font-weight: 700; font-size: 0.8rem; transition: 0.3s; text-align: center; box-shadow: 0 5px 15px rgba(164, 208, 125, 0.3); }
-        .web-link-btn:hover { transform: scale(1.05); background: var(--dark-green); }
-        .schedule-container { display: flex; justify-content: center; gap: 30px; padding: 0 5%; flex-wrap: wrap; }
-        .schedule-item { width: 400px; max-width: 90%; }
-        .schedule-item img { width: 100%; height: 450px; object-fit: cover; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); cursor: pointer; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; }
-        .modal img { max-width: 90%; max-height: 90%; border-radius: 10px; }
-        .portfolio-footer { position: relative; background-color: var(--footer-bg); color: #ffffff; padding: 80px 20px 40px; width: 100%; margin-top: 100px; z-index: 10; text-align: center; }
-        .back-to-top { position: absolute; right: 40px; top: -25px; width: 50px; height: 50px; border-radius: 50%; background-color: var(--accent-green); color: var(--footer-bg); border: none; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
-        .social-links { display: flex; gap: 30px; justify-content: center; margin: 20px 0; }
-        .social-links a { color: white; text-decoration: none; font-family: 'Comfortaa'; font-size: 0.8rem; opacity: 0.7; transition: 0.3s; }
-        .social-links a:hover { opacity: 1; color: var(--accent-green); }
+
+        .web-link-btn {
+            background: var(--accent-green);
+            color: var(--white);
+            text-decoration: none;
+            padding: 13px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1),
+                        background 0.25s ease,
+                        box-shadow 0.3s ease;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(164,208,125,0.35);
+            display: inline-block;
+        }
+
+        .web-link-btn:hover {
+            transform: scale(1.07) translateY(-2px);
+            background: var(--dark-green);
+            box-shadow: 0 10px 28px rgba(27,67,50,0.3);
+        }
+
+        .web-link-btn:active { transform: scale(0.97); }
+
+        /* ── SCHEDULE ── */
+        .schedule-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 0 5%;
+            flex-wrap: wrap;
+        }
+
+        .schedule-item {
+            width: 400px;
+            max-width: 90%;
+            transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.5s ease;
+            border-radius: 15px;
+        }
+
+        .schedule-item:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(27,67,50,0.15);
+        }
+
+        .schedule-item img {
+            width: 100%;
+            height: 450px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.07);
+            cursor: pointer;
+            display: block;
+        }
+
+        /* ── MODAL ── */
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.35s ease;
+        }
+
+        .modal.open { background: rgba(0,0,0,0.92); }
+
+        .modal-inner {
+            transform: scale(0.88);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease;
+        }
+
+        .modal.open .modal-inner { transform: scale(1); opacity: 1; }
+
+        .modal img {
+            max-width: 90vw;
+            max-height: 88vh;
+            border-radius: 12px;
+            display: block;
+        }
+
+        /* ── FOOTER ── */
+        .portfolio-footer {
+            position: relative;
+            background-color: var(--footer-bg);
+            color: #ffffff;
+            padding: 80px 20px 40px;
+            width: 100%;
+            margin-top: 100px;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .back-to-top {
+            position: absolute;
+            right: 40px;
+            top: -25px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+            color: var(--footer-bg);
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 6px 20px rgba(164,208,125,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 12px 28px rgba(164,208,125,0.5);
+        }
+
+        .back-to-top:active { transform: scale(0.94); }
+
+        .social-links { display: flex; gap: 30px; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+
+        .social-links a {
+            color: white;
+            text-decoration: none;
+            font-family: 'Comfortaa';
+            font-size: 0.8rem;
+            opacity: 0.65;
+            transition: opacity 0.25s ease, color 0.25s ease, transform 0.3s ease;
+        }
+
+        .social-links a:hover { opacity: 1; color: var(--accent-green); transform: translateY(-2px); }
+
         .footer-links { display: flex; justify-content: center; gap: 50px; margin: 40px 0; flex-wrap: wrap; }
-        .contact-item .label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-green); margin-bottom: 5px; }
-        .footer-bottom { margin-top: 50px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.75rem; opacity: 0.5; }
+
+        .contact-item .label {
+            display: block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-green);
+            margin-bottom: 5px;
+        }
+
+        .footer-bottom {
+            margin-top: 50px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            font-size: 0.75rem;
+            opacity: 0.45;
+        }
+
+        /* ── MOBILE REFINEMENTS ── */
+        @media (max-width: 600px) {
+            .section-label {
+                font-size: 1.5rem;
+                margin: 72px 0 20px;
+            }
+
+            /* Featured gallery: shorter on mobile, nice scroll feel */
+            .gallery-item { height: 52vw; }
+
+            .featured-gallery { gap: 20px; padding: 12px 5% 16px; }
+
+            /* Arts grid: true 2-col on mobile */
+            .arts-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+                padding: 0 4%;
+            }
+
+            .art-card { padding: 10px 10px 22px; border-radius: 8px; }
+            .art-card p { font-size: 0.9rem; margin-top: 8px; }
+
+            /* Poster section: stack phone + grid vertically */
+            .posters-flex {
+                flex-direction: column;
+                gap: 28px;
+                align-items: center;
+            }
+
+            .phone-mockup { width: 240px; height: 450px; }
+
+            .posters-list {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .poster-thumb { border-radius: 8px; }
+
+            /* Web section: stack phone + info vertically */
+            .website-flex { gap: 36px; }
+            .web-project-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 20px;
+                width: 100%;
+            }
+
+            .web-phone { width: 200px; height: 400px; }
+
+            .web-info { align-items: center; }
+
+            /* Schedule: single column */
+            .schedule-container { gap: 20px; padding: 0 4%; }
+            .schedule-item { width: 100%; max-width: 420px; }
+            .schedule-item img { height: 320px; }
+
+            /* Footer */
+            .footer-links { gap: 24px; }
+            .back-to-top { right: 20px; }
+        }
+
+        /* ── REDUCED MOTION ── */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ── PAGE TOP PADDING ── */
+        body > .section-label:first-of-type,
+        body > h2:first-of-type {
+            margin-top: 90px;
+        }
+
+        .page-top-spacing { height: 80px; }
     </style>
 </head>
 <body>
+
     <nav>
-        <div class="hamburger" id="hamburger">
+        <div class="hamburger" id="hamburger" aria-label="Open menu" role="button" tabindex="0">
             <span></span>
             <span></span>
             <span></span>
@@ -174,88 +642,90 @@
         </div>
     </nav>
 
-   <h2 class="section-label"><span>Featured Works</span></h2>
-<div class="featured-wrapper">
-    <div class="featured-gallery" id="h-gallery">
-        <div class="gallery-item sticker-style"><img src="https://i.imgur.com/Ky6rdht.png" onclick="openModal(this.src)"></div>
-        <div class="gallery-item sticker-style"><img src="https://i.imgur.com/HT02eQi.png" onclick="openModal(this.src)"></div>
-        <div class="gallery-item sticker-style"><img src="https://i.imgur.com/XfTvucC.png" onclick="openModal(this.src)"></div>
-        <div class="gallery-item"><img src="https://i.imgur.com/Uj05QYO.png" onclick="openModal(this.src)"></div>
-        <div class="gallery-item">
-            <video autoplay muted loop playsinline onclick="openModal(this.querySelector('source').src)">
-                <source src="https://i.imgur.com/NW7UlPl.mp4" type="video/mp4">
-            </video>
-        </div>
-        <div class="gallery-item"><img src="https://i.imgur.com/a2mPmh3.png" onclick="openModal(this.src)"></div>
-        <div class="gallery-item">
-            <video autoplay muted loop playsinline onclick="openModal(this.querySelector('source').src)">
-                <source src="https://i.imgur.com/OuxtA7r.mp4" type="video/mp4">
-            </video>
-        </div>
-    </div>
-</div>
+    <div class="page-top-spacing"></div>
 
-<h2 class="section-label"><span>Arts & Illustration</span></h2>
-<div class="arts-grid">
-    <div class="art-card" onclick="openModal('https://i.imgur.com/FoIp80O.gif')">
-        <img src="https://i.imgur.com/FoIp80O.gif">
-        <p style="font-family:'Gaegu'; text-align:center; margin-top:10px;">Self Portrait</p>
+    <h2 class="section-label"><span>Featured Works</span></h2>
+    <div class="featured-wrapper">
+        <div class="featured-gallery" id="h-gallery">
+            <div class="gallery-item sticker-style"><img src="https://i.imgur.com/Ky6rdht.png" onclick="openModal(this.src)" alt="Featured work"></div>
+            <div class="gallery-item sticker-style"><img src="https://i.imgur.com/HT02eQi.png" onclick="openModal(this.src)" alt="Featured work"></div>
+            <div class="gallery-item sticker-style"><img src="https://i.imgur.com/XfTvucC.png" onclick="openModal(this.src)" alt="Featured work"></div>
+            <div class="gallery-item"><img src="https://i.imgur.com/Uj05QYO.png" onclick="openModal(this.src)" alt="Featured work"></div>
+            <div class="gallery-item">
+                <video autoplay muted loop playsinline>
+                    <source src="https://i.imgur.com/NW7UlPl.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="gallery-item"><img src="https://i.imgur.com/a2mPmh3.png" onclick="openModal(this.src)" alt="Featured work"></div>
+            <div class="gallery-item">
+                <video autoplay muted loop playsinline>
+                    <source src="https://i.imgur.com/OuxtA7r.mp4" type="video/mp4">
+                </video>
+            </div>
+        </div>
     </div>
-    <div class="art-card" onclick="openModal('https://i.imgur.com/2VkzAks.png')">
-        <img src="https://i.imgur.com/2VkzAks.png">
-        <p style="font-family:'Gaegu'; text-align:center; margin-top:10px;">Academic</p>
+
+    <h2 class="section-label"><span>Arts & Illustration</span></h2>
+    <div class="arts-grid">
+        <div class="art-card" onclick="openModal('https://i.imgur.com/FoIp80O.gif')">
+            <img src="https://i.imgur.com/FoIp80O.gif" alt="Self Portrait">
+            <p>Self Portrait</p>
+        </div>
+        <div class="art-card" onclick="openModal('https://i.imgur.com/2VkzAks.png')">
+            <img src="https://i.imgur.com/2VkzAks.png" alt="Academic">
+            <p>Academic</p>
+        </div>
+        <div class="art-card" onclick="openModal('https://i.imgur.com/WKsLX2U.png')">
+            <img src="https://i.imgur.com/WKsLX2U.png" alt="Laufey">
+            <p>Laufey</p>
+        </div>
+        <div class="art-card" onclick="openModal('https://i.imgur.com/DUGkugf.png')">
+            <img src="https://i.imgur.com/DUGkugf.png" alt="Dark Style">
+            <p>Dark Style</p>
+        </div>
+        <div class="art-card" onclick="openModal('https://i.imgur.com/3wdFTmW.png')">
+            <img src="https://i.imgur.com/3wdFTmW.png" alt="Dark Style">
+            <p>Dark Style</p>
+        </div>
+        <div class="art-card" onclick="openModal('https://i.imgur.com/83mw43b.png')">
+            <img src="https://i.imgur.com/83mw43b.png" alt="Kiko">
+            <p>Kiko</p>
+        </div>
+        <div class="art-card" onclick="openModal('https://i.imgur.com/W3LAqWW.png')">
+            <img src="https://i.imgur.com/W3LAqWW.png" alt="Before">
+            <p>Before</p>
+        </div>
+        <div class="art-card" onclick="openModal('https://i.imgur.com/Ci37cAm.png')">
+            <img src="https://i.imgur.com/Ci37cAm.png" alt="Now">
+            <p>Now</p>
+        </div>
     </div>
-    <div class="art-card" onclick="openModal('https://i.imgur.com/WKsLX2U.png')">
-        <img src="https://i.imgur.com/WKsLX2U.png">
-        <p style="font-family:'Gaegu'; text-align:center; margin-top:10px;">Laufey</p>
-    </div>
-    <div class="art-card" onclick="openModal('https://i.imgur.com/DUGkugf.png')">
-        <img src="https://i.imgur.com/DUGkugf.png">
-        <p style="font-family:'Gaegu'; text-align:center; margin-top:10px;">Dark Style</p>
-    </div>
-    <div class="art-card" onclick="openModal('https://i.imgur.com/3wdFTmW.png')">
-        <img src="https://i.imgur.com/3wdFTmW.png">
-        <p style="font-family:'Gaegu'; text-align:center; margin-top:10px;">Dark Style</p>
-    </div>
-    <div class="art-card" onclick="openModal('https://i.imgur.com/83mw43b.png')">
-        <img src="https://i.imgur.com/83mw43b.png">
-        <p style="font-family:'Gaegu'; text-align:center; margin-top:10px;">Kiko</p>
-    </div>
-    <div class="art-card" onclick="openModal('https://i.imgur.com/W3LAqWW.png')">
-        <img src="https://i.imgur.com/W3LAqWW.png">
-        <p style="font-family:'Gaegu'; text-align:center; margin-top:10px;">Before</p>
-    </div>
-    <div class="art-card" onclick="openModal('https://i.imgur.com/Ci37cAm.png')">
-        <img src="https://i.imgur.com/Ci37cAm.png">
-        <p style="font-family:'Gaegu'; text-align:center; margin-top:10px;">Now</p>
-    </div>
-</div>
 
     <h2 class="section-label"><span>Posters & Graphics</span></h2>
     <div class="posters-flex">
         <div class="phone-mockup">
             <div class="ig-display">
                 <div style="padding: 10px; font-size: 0.8rem; border-bottom: 1px solid #eee;"><b>kent_design</b></div>
-                <div class="ig-img-box"><img src="https://i.imgur.com/nzsNWUb.png" id="ig-main"></div>
-                <div style="padding: 10px; font-size: 0.7rem;">❤️ 💬 ✈️ <br><b>kent_design</b> #PosterShowcase</div>
+                <div class="ig-img-box"><img src="https://i.imgur.com/nzsNWUb.png" id="ig-main" alt="Poster preview"></div>
+                <div style="padding: 10px; font-size: 0.7rem;">❤️ 💬 ✈️<br><b>kent_design</b> #PosterShowcase</div>
             </div>
         </div>
         <div class="posters-list">
-            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/nzsNWUb.png', this)"><img src="https://i.imgur.com/nzsNWUb.png"></div>
-            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/OxquzJc.png', this)"><img src="https://i.imgur.com/OxquzJc.png"></div>
-            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/jIEAJ82.png', this)"><img src="https://i.imgur.com/jIEAJ82.png"></div>
-            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/2bqpHsC.png', this)"><img src="https://i.imgur.com/2bqpHsC.png"></div>
-            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/geiNktF.png', this)"><img src="https://i.imgur.com/geiNktF.png"></div>
-            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/kIHseI7.png', this)"><img src="https://i.imgur.com/kIHseI7.png"></div>
-            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/Cjv5Iq2.png', this)"><img src="https://i.imgur.com/Cjv5Iq2.png"></div>
-            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/XeQYJjU.png', this)"><img src="https://i.imgur.com/XeQYJjU.png"></div>
+            <div class="poster-thumb active" onclick="setIG('https://i.imgur.com/nzsNWUb.png', this)"><img src="https://i.imgur.com/nzsNWUb.png" alt="Poster 1"></div>
+            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/OxquzJc.png', this)"><img src="https://i.imgur.com/OxquzJc.png" alt="Poster 2"></div>
+            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/jIEAJ82.png', this)"><img src="https://i.imgur.com/jIEAJ82.png" alt="Poster 3"></div>
+            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/2bqpHsC.png', this)"><img src="https://i.imgur.com/2bqpHsC.png" alt="Poster 4"></div>
+            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/geiNktF.png', this)"><img src="https://i.imgur.com/geiNktF.png" alt="Poster 5"></div>
+            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/kIHseI7.png', this)"><img src="https://i.imgur.com/kIHseI7.png" alt="Poster 6"></div>
+            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/Cjv5Iq2.png', this)"><img src="https://i.imgur.com/Cjv5Iq2.png" alt="Poster 7"></div>
+            <div class="poster-thumb" onclick="setIG('https://i.imgur.com/XeQYJjU.png', this)"><img src="https://i.imgur.com/XeQYJjU.png" alt="Poster 8"></div>
         </div>
     </div>
 
     <h2 class="section-label"><span>Scheduling Management</span></h2>
     <div class="schedule-container">
-        <div class="schedule-item"><img src="https://i.imgur.com/a8Xp714.png" onclick="openModal(this.src)"></div>
-        <div class="schedule-item"><img src="https://i.imgur.com/hiYXVYK.png" onclick="openModal(this.src)"></div>
+        <div class="schedule-item"><img src="https://i.imgur.com/a8Xp714.png" onclick="openModal(this.src)" alt="Schedule 1"></div>
+        <div class="schedule-item"><img src="https://i.imgur.com/hiYXVYK.png" onclick="openModal(this.src)" alt="Schedule 2"></div>
     </div>
 
     <h2 class="section-label"><span>Website Creation</span></h2>
@@ -271,7 +741,6 @@
                 <a href="https://moodli.netlify.app" target="_blank" class="web-link-btn">Visit Website</a>
             </div>
         </div>
-
         <div class="web-project-item">
             <div class="web-phone">
                 <video autoplay muted loop playsinline>
@@ -285,47 +754,51 @@
         </div>
     </div>
 
-   <footer class="portfolio-footer">
-    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="back-to-top">↑</button>
-    <div class="footer-content">
-        <h3 style="font-family: 'Shrikhand'; font-size: 2rem;">Connect</h3>
-        <div class="social-links">
-            <a href="https://ph.linkedin.com/in/kent-reyes-a2940b334" target="_blank">LinkedIn</a>
-            <a href="https://github.com/kentreyes208-code" target="_blank">GitHub</a>
-            <a href="https://www.instagram.com/kentii_88" target="_blank">Instagram</a>
-        </div>
-        <div class="footer-links">
-            <div class="contact-item">
-                <span class="label">Phone</span>
-                <span class="value">+63 936 943 3099</span>
+    <footer class="portfolio-footer">
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="back-to-top" aria-label="Back to top">↑</button>
+        <div class="footer-content">
+            <h3 style="font-family:'Shrikhand'; font-size:2rem;">Connect</h3>
+            <div class="social-links">
+                <a href="https://ph.linkedin.com/in/kent-reyes-a2940b334" target="_blank">LinkedIn</a>
+                <a href="https://github.com/kentreyes208-code" target="_blank">GitHub</a>
+                <a href="https://www.instagram.com/kentii_88" target="_blank">Instagram</a>
             </div>
-            <div class="contact-item">
-                <span class="label">Email</span>
-                <span class="value">kentreyes208@gmail.com</span>
+            <div class="footer-links">
+                <div class="contact-item">
+                    <span class="label">Phone</span>
+                    <span class="value">+63 936 943 3099</span>
+                </div>
+                <div class="contact-item">
+                    <span class="label">Email</span>
+                    <span class="value">kentreyes208@gmail.com</span>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Kent's Portfolio. All rights reserved.</p>
             </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Kent's Portfolio. All rights reserved.</p>
+    </footer>
+
+    <!-- MODAL -->
+    <div class="modal" id="modal" onclick="closeModal()">
+        <div class="modal-inner" onclick="event.stopPropagation()">
+            <img src="" id="modal-img" alt="Full view">
         </div>
     </div>
-</footer>
-
-    <div class="modal" id="modal" onclick="this.style.display='none'"><img src="" id="modal-img"></div>
 
     <script>
-        // NAVIGATION FIX: Dedicated event listener for hamburger and menu items
+        /* ── NAVIGATION ── */
         const hamburger = document.getElementById('hamburger');
-        const navLinks = document.getElementById('nav-links');
-        
+        const navLinks  = document.getElementById('nav-links');
+
         const toggleMenu = () => {
             hamburger.classList.toggle('active');
             navLinks.classList.toggle('active');
         };
 
-        // Added touchstart for better mobile responsiveness
         hamburger.addEventListener('click', toggleMenu);
-        
-        // Close menu when a link is clicked
+        hamburger.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') toggleMenu(); });
+
         document.querySelectorAll('.nav-links a').forEach(link => {
             link.addEventListener('click', () => {
                 hamburger.classList.remove('active');
@@ -333,47 +806,107 @@
             });
         });
 
-        // Scattered Animation for Arts (Original untouched)
-        const cards = document.querySelectorAll('.art-card');
-        cards.forEach(card => {
-            card.style.setProperty('--x', (Math.random() * 200 - 100) + 'px');
-            card.style.setProperty('--y', (Math.random() * 200 - 100) + 'px');
-            card.style.setProperty('--r', (Math.random() * 40 - 20) + 'deg');
+        /* Close menu on outside tap */
+        document.addEventListener('click', e => {
+            if (navLinks.classList.contains('active') &&
+                !navLinks.contains(e.target) &&
+                !hamburger.contains(e.target)) {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
         });
 
-        // Intersection Observer for Art Cards (Original untouched)
-        const obs = new IntersectionObserver(entries => {
-            entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.art-card').forEach(c => obs.observe(c));
+        /* ── SCROLL-TRIGGERED REVEALS ── */
+        const revealObs = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    revealObs.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
-        // Instagram Switcher (Original untouched)
+        /* Section labels */
+        document.querySelectorAll('.section-label').forEach(el => revealObs.observe(el));
+
+        /* Art cards — scattered entrance */
+        const cards = document.querySelectorAll('.art-card');
+        cards.forEach((card, i) => {
+            card.style.setProperty('--x', (Math.random() * 160 - 80) + 'px');
+            card.style.setProperty('--y', (Math.random() * 80 - 40) + 'px');
+            card.style.setProperty('--r', (Math.random() * 30 - 15) + 'deg');
+            /* slight stagger */
+            card.style.transitionDelay = (i * 0.06) + 's';
+            revealObs.observe(card);
+        });
+
+        /* ── INSTAGRAM SWITCHER ── */
         function setIG(src, thumb) {
             const mainImg = document.getElementById('ig-main');
-            mainImg.style.opacity = 0;
+            mainImg.classList.add('switching');
             setTimeout(() => {
                 mainImg.src = src;
-                mainImg.style.opacity = 1;
-            }, 200);
+                mainImg.classList.remove('switching');
+            }, 280);
             document.querySelectorAll('.poster-thumb').forEach(t => t.classList.remove('active'));
             thumb.classList.add('active');
         }
 
-        // Modal Logic (Original untouched)
+        /* ── MODAL ── */
         function openModal(src) {
-            const modal = document.getElementById('modal');
+            const modal   = document.getElementById('modal');
             const modalImg = document.getElementById('modal-img');
+            modalImg.src  = src;
             modal.style.display = 'flex';
-            modalImg.src = src;
+            /* Force reflow for transition */
+            modal.offsetHeight;
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
         }
 
-        // Horizontal Scroll (Original untouched)
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+            setTimeout(() => { modal.style.display = 'none'; }, 380);
+        }
+
+        /* ESC key closes modal */
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        /* ── HORIZONTAL SCROLL — mouse wheel + drag ── */
         const hGallery = document.getElementById('h-gallery');
+
         hGallery.addEventListener('wheel', (e) => {
             if (e.deltaY !== 0) {
                 e.preventDefault();
-                hGallery.scrollLeft += e.deltaY;
+                hGallery.scrollLeft += e.deltaY * 1.2;
             }
+        }, { passive: false });
+
+        /* Drag to scroll */
+        let isDragging = false, startX, startScrollLeft;
+
+        hGallery.addEventListener('mousedown', e => {
+            isDragging  = true;
+            startX      = e.pageX - hGallery.offsetLeft;
+            startScrollLeft = hGallery.scrollLeft;
+            hGallery.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            hGallery.style.cursor = 'grab';
+        });
+
+        document.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x    = e.pageX - hGallery.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            hGallery.scrollLeft = startScrollLeft - walk;
         });
     </script>
 </body>
