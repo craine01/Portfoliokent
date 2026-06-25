@@ -99,9 +99,9 @@
 
         /* Smoothed: leaves now drift side-to-side as they fall instead of a
            single straight diagonal line, feels more like real foliage. Still
-           pure transform/opacity, so it stays GPU-accelerated. */
+           pure transform/opacity, so it stays GPU-accelerated. */ 
         @keyframes fall {
-            0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+            0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; } /*   */
             10%  { opacity: 0.6; }
             30%  { transform: translate3d(calc(var(--drift, 40px) * 0.5), 30vh, 0) rotate(110deg); }
             55%  { transform: translate3d(calc(var(--drift, 40px) * -0.3), 55vh, 0) rotate(200deg); }
